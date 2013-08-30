@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta name="viewport"
+    content="width=device-width" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style"
+    content="black-translucent" />
+  <link rel="apple-touch-icon-precomposed" href="data:image/png;base64,
+iVBORw0KGgoAAAANSUhEUgAAAHgAAAB4CAIAAAC2BqGFAAAABmJLR0QA/wD/AP+gvaeTAAACOklE
+QVR4nO3czW6EMAwAYaj6/q+8PfSSS5BN7CG08x2r/UGjyEVZ4Px8Pof6fT19AP+FoSGGhhgaYmiI
+oSGGhhgaYmiIoSGGhhgaYmiIoSGGhhgaYmjI9723nedZexzHcUR+6xm/d3x95O9V7v0m5YqGGBpi
+aMjNGT1a+R19NkNnM3dFx3HGuaIhhoYYGlIwo0eRWVY1c1fmOHmcv1zREENDDA0pntFVZvNx9veO
+8+5armiIoSGGhmw6o/nz3G6uaIihIYaGFM/op+Zm9nv543RFQwwNMTSkYEZ3XDsxilynEdnr6D7O
+a65oiKEhhoace+4Y7L+/nOWKhhgaYmhI8fXRkWuWs58ze33V9dGR16//n3BFQwwNMTTk5ozOzsHs
+TI+8t2r+zl4/+y7vYdmaoSGGhhScR2fPnbOfMyL/N3h99CsZGmJoSON5dGT2dczlCGYuj1zREEND
+DA15YD96ZQ868l3ZfXDmN0lXNMTQEENDXnBdR1Z2j6XqM6+5oiGGhhga8oLn3mVn7sr87buG2hUN
+MTTE0JCb59FVewUd955U7W/U7lm7oiGGhhga8uLn3mU/89n7xV3REENDDA15wTOVOvaXR1X311xz
+RUMMDTE0ZNMZvbLvkb22ZPaa2n1qVzTE0BBDQzZ97t3KLI6cg/P7Hq5oiKEhhoa84Ll3o45n/1fd
+M3nNFQ0xNMTQkE2vj/57XNEQQ0MMDTE0xNAQQ0MMDTE0xNAQQ0MMDTE0xNAQQ0MMDTE0xNCQH9hO
+AwR2S6RQAAAAAElFTkSuQmCC
+   ">
+  <style type="text/css">
+#body {
+    margin-top: 20px;
+    /*
+    overflow: hidden;
+    */
+}
+scan {
+    position: relative;
+}
+input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 999;
+}
+canvas {
+    display: none;
+}
+#result {
+    display: none;
+}
+  </style>
+<script src="jsqrcode/src/grid.js"></script>
+<script src="jsqrcode/src/version.js"></script>
+<script src="jsqrcode/src/detector.js"></script>
+<script src="jsqrcode/src/formatinf.js"></script>
+<script src="jsqrcode/src/errorlevel.js"></script>
+<script src="jsqrcode/src/bitmat.js"></script>
+<script src="jsqrcode/src/datablock.js"></script>
+<script src="jsqrcode/src/bmparser.js"></script>
+<script src="jsqrcode/src/datamask.js"></script>
+<script src="jsqrcode/src/rsdecoder.js"></script>
+<script src="jsqrcode/src/gf256poly.js"></script>
+<script src="jsqrcode/src/gf256.js"></script>
+<script src="jsqrcode/src/decoder.js"></script>
+<script src="jsqrcode/src/qrcode.js"></script>
+<script src="jsqrcode/src/findpat.js"></script>
+<script src="jsqrcode/src/alignpat.js"></script>
+<script src="jsqrcode/src/databr.js"></script>
+  <title>QR</title>
+ </head>
+ <body>
+ <div id='body'>
+  <div>
+  <div id='scan'>
+   <h1>Tap anywhere to scan</h1>
+  </div>
+  <input type="file" accept="image/*">
+  </div>
+  <canvas id="qr-canvas"></canvas>
+  <div id='result'>
+  </div>
+ </div>
+ <script>
+(function () {
+var qs = function (s) { return document.querySelector(s); };
+qs('input').onchange = function (ce) {
+    qs('#scan').style.display = 'none';
+    var fr = new FileReader();
+    fr.onload = function (le) {
+        var img = new Image();
+        img.onload = function () {
+        try{
+            var canvas = qs('canvas'),
+                ctx = canvas.getContext('2d');
+            qs('input').style.display = 'none';
+            qs('canvas').style.display = 'block';
+            canvas.width = 300;//img.width;
+            canvas.height = 400;//img.height;
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            qrcode.callback = function (data) {
+                qs('canvas').style.display = 'none';
+                qs('#result').style.display = 'block';
+                qs('#result').innerHTML = data;
+            };
+            qrcode.decode();
+        } catch (ex) {
+            alert(ex);
+        }
+        };
+        img.src = '' + le.target.result;
+    };
+    fr.readAsDataURL(ce.target.files[0]);
+}
+qs('input').style.opacity = '0';
+qs('input').style.width = window.innerWidth + 'px';
+qs('input').style.height = window.innerHeight + 'px';
+}());
+ </script>
+ </body>
+</html>
