@@ -2,7 +2,7 @@
 <html>
  <head>
   <meta name="viewport"
-    content="width=device-width" />
+    content="width=device-width, initial-scale=1.0" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style"
     content="black-translucent" />
@@ -23,9 +23,6 @@ AwR2S6RQAAAAAElFTkSuQmCC
   <style type="text/css">
 #body {
     margin-top: 20px;
-    /*
-    overflow: hidden;
-    */
 }
 scan {
     position: relative;
@@ -65,14 +62,14 @@ canvas {
  <body>
  <div id='body'>
   <div>
-  <div id='scan'>
-   <h1>Tap anywhere to scan</h1>
+   <div id='scan'>
+    <h1>Tap anywhere to scan</h1>
+   </div>
+   <input type="file" accept="image/*">
   </div>
-  <input type="file" accept="image/*">
-  </div>
-  <canvas id="qr-canvas"></canvas>
   <div id='result'>
   </div>
+  <canvas id="qr-canvas"></canvas>
  </div>
  <script>
 (function () {
@@ -84,17 +81,52 @@ qs('input').onchange = function (ce) {
         var img = new Image();
         img.onload = function () {
         try{
-            var canvas = qs('canvas'),
-                ctx = canvas.getContext('2d');
+            var iw = img.naturalWidth,
+                ih = img.naturalHeight,
+                canvas,
+                ctx,
+                scale,
+                tile = 512,
+                vTile,
+                hTile,
+                vOff,
+                hOff;
+            scale = 1.0;
+            if (iw * ih > 2048 * 1024) {
+                // assume subsampling
+                iw /= 2;
+                ih /= 2;
+            }
+            while (640 < iw * scale) {
+                scale /= 2.0;
+            }
+            canvas = qs('#qr-canvas');//document.createElement('canvas');
+            canvas.width = iw * scale << 0;
+            canvas.height = ih * scale << 0;
+            ctx = canvas.getContext('2d');
+            //ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            var n = 0;
+            for (vOff = 0; vOff < ih; vOff += tile) {
+                vTile = ih - vOff;
+                if (vTile > tile) {
+                    vTile = tile;
+                }
+                for (hOff = 0; hOff < iw; hOff += tile) {
+                    hTile = iw - hOff;
+                    if (hTile > tile) {
+                        hTile = tile;
+                    }
+                    ctx.drawImage(img, hOff, vOff, hTile, vTile,
+                            hOff * scale << 0, vOff * scale << 0,
+                            hTile * scale << 0, vTile * scale << 0);
+                }
+            }
+            canvas.style.display = 'block';
             qs('input').style.display = 'none';
-            qs('canvas').style.display = 'block';
-            canvas.width = 300;//img.width;
-            canvas.height = 400;//img.height;
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
             qrcode.callback = function (data) {
-                qs('canvas').style.display = 'none';
+                //qs('#qr-canvas').style.display = 'none';
                 qs('#result').style.display = 'block';
-                qs('#result').innerHTML = data;
+                qs('#result').innerHTML = '<hr>' + data + '<hr>';
             };
             qrcode.decode();
         } catch (ex) {
