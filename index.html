@@ -75,22 +75,18 @@ canvas {
 (function () {
 var qs = function (s) { return document.querySelector(s); };
 qs('input').onchange = function (ce) {
-    qs('#scan').style.display = 'none';
     var fr = new FileReader();
+    qs('#scan').style.display = 'none';
     fr.onload = function (le) {
         var img = new Image();
         img.onload = function () {
-        try{
-            var iw = img.naturalWidth,
-                ih = img.naturalHeight,
+            var iw = img.width,
+                ih = img.height,
                 canvas,
-                ctx,
                 scale,
-                tile = 512,
-                vTile,
-                hTile,
-                vOff,
-                hOff;
+                tc,
+                data,
+                eHeight;
             scale = 1.0;
             if (iw * ih > 2048 * 1024) {
                 // assume subsampling
@@ -100,27 +96,21 @@ qs('input').onchange = function (ce) {
             while (640 < iw * scale) {
                 scale /= 2.0;
             }
-            canvas = qs('#qr-canvas');//document.createElement('canvas');
+            canvas = qs('#qr-canvas');
             canvas.width = iw * scale << 0;
             canvas.height = ih * scale << 0;
-            ctx = canvas.getContext('2d');
-            //ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            var n = 0;
-            for (vOff = 0; vOff < ih; vOff += tile) {
-                vTile = ih - vOff;
-                if (vTile > tile) {
-                    vTile = tile;
-                }
-                for (hOff = 0; hOff < iw; hOff += tile) {
-                    hTile = iw - hOff;
-                    if (hTile > tile) {
-                        hTile = tile;
-                    }
-                    ctx.drawImage(img, hOff, vOff, hTile, vTile,
-                            hOff * scale << 0, vOff * scale << 0,
-                            hTile * scale << 0, vTile * scale << 0);
-                }
-            }
+            tc = document.createElement('canvas');
+            tc.width = canvas.width;
+            tc.height = canvas.height;
+            tc.getContext('2d').drawImage(
+                    img, 0, 0, canvas.width, canvas.height);
+            data = tc.getContext('2d').getImageData(
+                    0, 0, 1, canvas.height).data;
+            eHeight = canvas.height;
+            while (data[--eHeight * 4 + 3] == 0 && eHeight > 0);
+            eHeight++;
+            canvas.getContext('2d').drawImage(tc, 0, 0, tc.width, eHeight,
+                    0, 0, canvas.width, canvas.height);
             canvas.style.display = 'block';
             qs('input').style.display = 'none';
             qrcode.callback = function (data) {
@@ -128,10 +118,11 @@ qs('input').onchange = function (ce) {
                 qs('#result').style.display = 'block';
                 qs('#result').innerHTML = '<hr>' + data + '<hr>';
             };
-            qrcode.decode();
-        } catch (ex) {
-            alert(ex);
-        }
+            try{
+                qrcode.decode();
+            } catch (ex) {
+                alert(ex);
+            }
         };
         img.src = '' + le.target.result;
     };
