@@ -90,6 +90,7 @@ decode = function () {
     if (!("qrcode" in window)) {
         if (attempts-- <= 0) {
             alert('cannot locate decoder');
+            attempts = 20;
             return;
         }
         console.log('qrcode is not ready');
