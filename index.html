@@ -31,6 +31,11 @@ AwR2S6RQAAAAAElFTkSuQmCC
     color: #08c;
     text-align: center;
 }
+#footer {
+    margin-top: 1em;
+    font-size: .2em;
+    color: #ccc;
+}
 input {
     position: absolute;
     top: 0;
@@ -69,7 +74,11 @@ canvas {
  <div id='body'>
   <div>
    <div id='scan'>
-    <span>Tap anywhere to scan</span>
+    Tap anywhere to scan
+    <div id=footer>
+     QR decoding with jsqrcode by Lazar Laszlo<br>
+     https://github.com/LazarSoft/jsqrcode
+    </div>
    </div>
    <input type="file" accept="image/*">
   </div>
